@@ -1,12 +1,15 @@
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class main {
@@ -18,11 +21,18 @@ public class main {
 
     public static void readFromExcel(String file) throws IOException {
 
-        int numberColumnWithPN = 0;
-        int numberColumnWithManufacturer = 1;
+//        int numberColumnWithPN = 0;
+//        int numberColumnWithManufacturer = 1;
+//        int numberSheetDocument = 0;
+//        int numberColumnWithFindPN = 3;
+//        double accuracySearch = 0.33;
+        int numberColumnWithPN = 1;
+        int numberColumnWithManufacturer = 2;
         int numberSheetDocument = 0;
         int numberColumnWithFindPN = 3;
+        double accuracySearch = 0.33;
 
+        String nameFile = "D:\\Java\\Excel\\1234NEW.xlsx";
 
         List<String> PNList = new ArrayList<>();
 
@@ -30,6 +40,7 @@ public class main {
         XSSFSheet myExcelSheet = myExcelBook.getSheetAt(numberSheetDocument);
 
         int r = 2;
+
         XSSFRow row = myExcelSheet.getRow(r);
 
         String PN = new String();
@@ -42,45 +53,66 @@ public class main {
                         .replaceAll("[^\\x00-\\x7F]", "")
                         .replaceAll(".115", "");
                 System.out.print(PN + ", ");
+
                 PNList.add(PN);
-                if(row.getCell(numberColumnWithManufacturer) != null)
+
+                if(row.getCell(numberColumnWithManufacturer) != null) {
                     System.out.println(row.getCell(numberColumnWithManufacturer));
+                }
             }
             r++;
             row = myExcelSheet.getRow(r);
         }
         myExcelBook.close();
 
-          System.out.println("--!--");
+                System.out.println("--!--");
 
-        int count = 2;
-        row = myExcelSheet.getRow(count);
+        r = 2;
+
+        List<List<String>> DNs = new ArrayList<>();
 
         for (String name:PNList) {
+            XSSFWorkbook myExcelBookFind = new XSSFWorkbook(new FileInputStream("D:\\Java\\Excel\\All PN.xlsx"));
+
             System.out.println("---");
             System.out.println(name);
             StringBuffer nameSB = new StringBuffer(name);
-            List<String> DNList = findPN(nameSB);
+            List<String> DNList = findPN(nameSB, accuracySearch, myExcelBookFind);
             System.out.println(DNList);
+            DNs.add(DNList);
 
-            row.getCell(numberColumnWithFindPN).setCellValue(DNList.toString());
-
-            count++;
-            row = myExcelSheet.getRow(count);
+            myExcelBook.close();
         }
+
+        XSSFWorkbook copyBook = copyWorkbookFile(myExcelBook, r, DNs);
+        XSSFSheet copySheet = copyBook.getSheet("BOM");
+
+
+        //writeWorkbook(myExcelBook, file);
         myExcelBook.close();
+
+        r = 2;
+        int i = 0;
+        row = copySheet.getRow(r);
+
+        while (row.getCell(i) != null)
+            copySheet.autoSizeColumn(++i);
+
+
+        copyBook.write(new FileOutputStream(nameFile));
+        copyBook.close();
     }
 
 
 
 
 
-    public static List<String> findPN(StringBuffer name) throws IOException {
+    public static List<String> findPN(StringBuffer name, double accuracySearch, XSSFWorkbook myExcelBook) throws IOException {
 
-        XSSFWorkbook myExcelBook = new XSSFWorkbook(new FileInputStream("D:\\Java\\Excel\\All PN.xlsx"));
+
         XSSFSheet myExcelSheet = myExcelBook.getSheetAt(0);
 
-        int clarNum = (int) Math.round(name.length() * 0.33);
+        int clarNum = (int) Math.round(name.length() * accuracySearch);
 
         List<String> DNList = new ArrayList<>();
 
@@ -106,8 +138,47 @@ public class main {
         if (DNList.isEmpty())
             DNList.add("PN не был найден");
 
-        myExcelBook.close();
+
 
         return DNList;
+    }
+
+    public static XSSFWorkbook copyWorkbookFile(XSSFWorkbook originWorkbook, int rowBegin, List<List<String>> DNs){
+
+        XSSFSheet originSheet = originWorkbook.getSheetAt(0);
+        XSSFWorkbook copyWorkbook = new XSSFWorkbook();
+        XSSFSheet copySheet = copyWorkbook.createSheet("BOM");
+
+        int cellNum = 0;
+        int rowConst = rowBegin;
+
+        XSSFRow origenRow = originSheet.getRow(rowBegin);
+        XSSFCell originCell;
+        XSSFRow copyRow = copySheet.createRow(rowBegin);
+        XSSFCell copyCell = copyRow.createCell(cellNum);
+
+        while (origenRow != null){
+            originCell = origenRow.getCell(cellNum);
+
+            while (originCell != null){
+                copyCell = copyRow.createCell(cellNum);
+
+                copyCell.setCellValue(originCell.toString());
+                System.out.print(originCell + " ");
+                originCell = origenRow.getCell(++cellNum);
+            }
+
+            copyCell = copyRow.createCell(++cellNum);
+            copyCell.setCellValue(DNs.get(rowBegin - rowConst).toString().substring(1, DNs.get(rowBegin - rowConst).toString().length() - 1));
+
+            rowBegin++;
+            origenRow = originSheet.getRow(rowBegin);
+            copyRow = copySheet.createRow(rowBegin);
+            cellNum = 0;
+
+            System.out.println();
+        }
+
+        return copyWorkbook;
     }
 }
