@@ -96,7 +96,7 @@ public class main extends Application {
         List<List<String>> DNs = new ArrayList<>();
 
         for (String name:PNList) {
-            XSSFWorkbook myExcelBookFind = new XSSFWorkbook(new FileInputStream("D:\\Java\\Excel\\All PN.xlsx"));
+            XSSFWorkbook myExcelBookFind = new XSSFWorkbook(new FileInputStream("D:\\ProcessingBOM\\All PN.xlsx"));
 
             System.out.println("---");
             System.out.println(name);
