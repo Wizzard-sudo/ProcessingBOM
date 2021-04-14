@@ -1,3 +1,11 @@
+import javafx.application.Application;
+
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -8,31 +16,47 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class main {
+public class main extends Application {
+
     public static void main(String[] args) throws IOException {
-        readFromExcel("D:\\Java\\Excel\\1234.xlsx");
+        Application.launch();
+        //readFromExcel("D:\\Java\\Excel\\1234.xlsx");
     }
 
+    @Override
+    public void start(Stage stage) throws Exception {
+        FXMLLoader loader = new FXMLLoader();
+        URL xmlUrl = getClass().getResource("/mainScene.fxml");
+        loader.setLocation(xmlUrl);
+        MainSceneController controller = loader.getController();
+        Parent root = loader.load();
 
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
 
-    public static void readFromExcel(String file) throws IOException {
+    public static void readFromExcel(String file,
+                                     int numberColumnWithPN,
+                                     int numberColumnWithManufacturer,
+                                     double accuracySearch, String nameFileNew) throws IOException {
 
 //        int numberColumnWithPN = 0;
 //        int numberColumnWithManufacturer = 1;
 //        int numberSheetDocument = 0;
-//        int numberColumnWithFindPN = 3;
 //        double accuracySearch = 0.33;
-        int numberColumnWithPN = 1;
-        int numberColumnWithManufacturer = 2;
+//        int numberColumnWithPN = 1;
+//        int numberColumnWithManufacturer = 2;
         int numberSheetDocument = 0;
-        int numberColumnWithFindPN = 3;
-        double accuracySearch = 0.33;
+//        double accuracySearch = 0.33;
 
-        String nameFile = "D:\\Java\\Excel\\1234NEW.xlsx";
+
+        String nameFile = file.substring(0, file.length() - nameFileNew.length() - 2) + "NEW.xlsx";
+
 
         List<String> PNList = new ArrayList<>();
 

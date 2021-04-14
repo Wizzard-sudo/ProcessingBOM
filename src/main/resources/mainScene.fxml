@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox fx:id="box" stylesheets="styles/style.css" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainSceneController">
+    <padding>
+        <Insets bottom="10" left="10" right="10" top="10" />
+    </padding>
+    <Text fx:id="text">Выберите файл с BOMом для обработки</Text>
+    <Button fx:id="button" onAction="#buttonClickedChoseBOM">Выбрать BOM</Button>
+    <Text fx:id="BOMError" />
+    <Text fx:id="text">Выберите номер столбца с PN</Text>
+    <TextField fx:id="textPN" maxWidth="50" />
+    <Text fx:id="textErrorPN" />
+    <Text fx:id="text">Выберите номер столбца с производителем</Text>
+    <TextField fx:id="textMan" maxWidth="50" />
+    <Text fx:id="textErrorMan" />
+    <Text fx:id="text">Выберите точность поиска (часть PN, которая должна совпадать)</Text>
+    <TextField fx:id="textAcc" maxWidth="50" />
+    <Text fx:id="textErrorAcc"/>
+    <Button fx:id="button" onAction="#buttonClickedGo">Обработать!</Button>
+    <Text fx:id="textFinish" />
+    </VBox>
